@@ -1,16 +1,5 @@
-# calibration_reader
+# Calibration Reader
 
-A new Flutter project.
+Tool to load, display and edit calibrations in the DCM format. Exporting to MAT file is supported.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img width="779" alt="image" src="https://github.com/gave92/CalibrationReader/assets/9673091/79be3ce7-13a2-4066-ad53-5ca6619542c5">
