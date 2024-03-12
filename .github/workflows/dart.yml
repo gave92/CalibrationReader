@@ -35,7 +35,7 @@ jobs:
         run: flutter build web --web-renderer canvaskit
 
       - name: Upload Web Build Files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: calibration_reader_web
           path: ./build/web

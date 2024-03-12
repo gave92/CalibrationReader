@@ -1,15 +1,12 @@
-import 'dart:convert';
-
 import 'package:calibration_reader/CalSelector.dart';
 import 'package:calibration_reader/FileAcceptType.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:inject_js/inject_js.dart' as js;
 import 'package:wasm_ffi/wasm_ffi.dart';
 import 'package:wasm_ffi/wasm_ffi_modules.dart';
 import 'package:calibration_reader/platform/filesystem_web.dart';
 
-const String _basePath = kReleaseMode ? 'assets/assets' : 'assets';
+const String _basePath = 'assets';
 
 Module? _module;
 
