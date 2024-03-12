@@ -1,4 +1,4 @@
-name: Dart Web Release
+name: Flutter Web Release
 
 on:
   push:
@@ -32,4 +32,10 @@ jobs:
         run: flutter test
 
       - name: Build web
-        run: flutter build web
+        run: flutter build web --web-renderer canvaskit
+
+      - name: Upload Web Build Files
+        uses: actions/upload-artifact@v2
+        with:
+          name: calibration_reader_web
+          path: ./build/web
