@@ -1,5 +1,5 @@
-import 'package:calibration_reader/CalSelector.dart';
-import 'package:calibration_reader/FileAcceptType.dart';
+import 'package:calibration_reader/models/CalSelector.dart';
+import 'package:calibration_reader/models/FileAcceptType.dart';
 import 'package:flutter/services.dart';
 import 'package:inject_js/inject_js.dart' as js;
 import 'package:wasm_ffi/wasm_ffi.dart';

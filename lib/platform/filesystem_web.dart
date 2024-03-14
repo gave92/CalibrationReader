@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
-import 'package:calibration_reader/FileAcceptType.dart';
+import 'package:calibration_reader/models/FileAcceptType.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/services.dart';
 import 'package:web/web.dart' as web;

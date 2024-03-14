@@ -1,4 +1,4 @@
-import 'package:calibration_reader/CalSelector.dart';
+import 'package:calibration_reader/models/CalSelector.dart';
 
 bool supportsMatExport() => false;
 

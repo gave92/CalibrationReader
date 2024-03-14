@@ -5,33 +5,33 @@ import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
 
 String? WriteDcmFile(List<dynamic> input) {
-  //try {
-  final info = input.cast<
-      ({
-        String name,
-        List phys,
-        List<int> size,
-        List sst_ref,
-        List sst_x,
-        List sst_y,
-        String type
-      })>();
-  final buffer = StringBuffer();
-  buffer.write(sprintf('%s\r\n', [getHeader()]));
-  buffer.write(sprintf('%s\r\n', [getfunktionen(info)]));
-  for (int f = 0; f < info.length; f++) {
-    if (info[f].phys.isNotEmpty && info[f].phys.all((e) => e != null)) {
-      // Skip invalid cals
-      String str_var = getVariable(info[f]);
-      if (str_var.isNotEmpty) {
-        buffer.write(sprintf('%s\r\n', [str_var]));
+  try {
+    final info = input.cast<
+        ({
+          String name,
+          List phys,
+          List<int> size,
+          List sst_ref,
+          List sst_x,
+          List sst_y,
+          String type
+        })>();
+    final buffer = StringBuffer();
+    buffer.write(sprintf('%s\r\n', [getHeader()]));
+    buffer.write(sprintf('%s\r\n', [getfunktionen(info)]));
+    for (int f = 0; f < info.length; f++) {
+      if (info[f].phys.isNotEmpty && info[f].phys.all((e) => e != null)) {
+        // Skip invalid cals
+        String str_var = getVariable(info[f]);
+        if (str_var.isNotEmpty) {
+          buffer.write(sprintf('%s\r\n', [str_var]));
+        }
       }
     }
+    return buffer.toString();
+  } catch (e) {
+    return null;
   }
-  return buffer.toString();
-  //} catch (e) {
-  //return null;
-  //}
 }
 
 String getHeader() {
