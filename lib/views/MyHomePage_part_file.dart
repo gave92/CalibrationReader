@@ -37,6 +37,7 @@ extension _MyHomePageStateFile on _MyHomePageState {
           .toList();
       filterCals = allCals;
       fileName = name;
+      isDirty = false;
     });
   }
 

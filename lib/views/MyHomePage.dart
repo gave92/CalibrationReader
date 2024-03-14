@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:math' as math;
 import 'package:calibration_reader/models/CalSelector.dart';
-import 'package:calibration_reader/views/Editable.dart';
 import 'package:calibration_reader/models/FileAcceptType.dart';
 import 'package:calibration_reader/utils/ReadDcmFile.dart';
 import 'package:calibration_reader/utils/WriteDcmFile.dart';
@@ -149,18 +147,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        TextButton.icon(
-                          onPressed: selectFile,
-                          icon: const Icon(Icons.add_outlined),
-                          label: const Text('Open'),
-                        ),
                         Visibility(
-                          visible: fileName.isNotEmpty &&
-                              !filterCals.any((e) => e.isSelected),
+                          visible: !filterCals.any((e) => e.isSelected),
                           child: TextButton.icon(
-                              onPressed: showFileInfo,
-                              icon: const Icon(Icons.info_outline),
-                              label: const Text('Info')),
+                              onPressed: selectFile,
+                              icon: const Icon(Icons.add_outlined),
+                              label: const Text('Open')),
                         ),
                         Visibility(
                           visible: fileName.isNotEmpty &&
@@ -172,14 +164,37 @@ class _MyHomePageState extends State<MyHomePage> {
                               label: const Text('Save')),
                         ),
                         Visibility(
-                          visible: fileName.isNotEmpty &&
-                              !filterCals.any((e) => e.isSelected) &&
-                              supportsMatExport(),
-                          child: TextButton.icon(
-                              onPressed: exportFileAsMat,
-                              icon: const Icon(Icons.import_export_outlined),
-                              label: const Text('Export as MAT')),
-                        ),
+                            visible: fileName.isNotEmpty &&
+                                !filterCals.any((e) => e.isSelected),
+                            child: MenuAnchor(
+                              menuChildren: [
+                                MenuItemButton(
+                                    onPressed: showFileInfo,
+                                    leadingIcon: const Icon(Icons.info_outline),
+                                    child: const Text('Info')),
+                                MenuItemButton(
+                                  onPressed: supportsMatExport()
+                                      ? exportFileAsMat
+                                      : null,
+                                  leadingIcon:
+                                      const Icon(Icons.import_export_outlined),
+                                  child: const Text('Export as MAT'),
+                                )
+                              ],
+                              builder: (BuildContext context,
+                                  MenuController controller, Widget? child) {
+                                return TextButton.icon(
+                                    onPressed: () {
+                                      if (controller.isOpen) {
+                                        controller.close();
+                                      } else {
+                                        controller.open();
+                                      }
+                                    },
+                                    icon: const Icon(Icons.more_horiz_outlined),
+                                    label: const Text('More'));
+                              },
+                            )),
                         Visibility(
                           visible: filterCals.any((e) => e.isSelected),
                           child: TextButton.icon(
