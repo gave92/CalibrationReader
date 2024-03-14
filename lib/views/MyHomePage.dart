@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String fileName = "";
   List<CalSelector> allCals = [], filterCals = [];
   bool isDirty = false;
+  bool showNamesOnly = false;
 
   PersistentBottomSheetController? _sheetController;
   final _listController = ListController();
@@ -164,14 +165,22 @@ class _MyHomePageState extends State<MyHomePage> {
                               label: const Text('Save')),
                         ),
                         Visibility(
+                          visible: fileName.isNotEmpty &&
+                              !filterCals.any((e) => e.isSelected),
+                          child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  showNamesOnly = !showNamesOnly;
+                                });
+                              },
+                              icon: const Icon(Icons.view_agenda_outlined),
+                              label: const Text('Switch view')),
+                        ),
+                        Visibility(
                             visible: fileName.isNotEmpty &&
                                 !filterCals.any((e) => e.isSelected),
                             child: MenuAnchor(
                               menuChildren: [
-                                MenuItemButton(
-                                    onPressed: showFileInfo,
-                                    leadingIcon: const Icon(Icons.info_outline),
-                                    child: const Text('Info')),
                                 MenuItemButton(
                                   onPressed: supportsMatExport()
                                       ? exportFileAsMat
@@ -179,7 +188,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   leadingIcon:
                                       const Icon(Icons.import_export_outlined),
                                   child: const Text('Export as MAT'),
-                                )
+                                ),
+                                MenuItemButton(
+                                    onPressed: showFileInfo,
+                                    leadingIcon: const Icon(Icons.info_outline),
+                                    child: const Text('Info')),
                               ],
                               builder: (BuildContext context,
                                   MenuController controller, Widget? child) {
@@ -208,7 +221,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: LayoutBuilder(builder: (BuildContext context,
                               BoxConstraints constraints) {
                             return TextButton.icon(
-                                onPressed: () => editCalibration(context),
+                                onPressed: () =>
+                                    editSelectedCalibration(context),
                                 icon: const Icon(Icons.edit_outlined),
                                 label: const Text('Edit'));
                           }),
@@ -236,7 +250,9 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               selector.isSelected = !selector.isSelected;
             });
-          } else {}
+          } else if (showNamesOnly) {
+            editCalibration(context, selector);
+          }
         },
         onLongPress: () {
           _sheetController?.close();
@@ -255,11 +271,17 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: LinearBorder.bottom(
             size: (screenSize.width - 32) / screenSize.width,
             side: const BorderSide(color: Colors.black26, width: 1)),
-        title: NameValueCalView(selector: selector));
+        title: showNamesOnly
+            ? Text(selector.calibration.name)
+            : NameValueCalView(selector: selector));
   }
 
-  void editCalibration(BuildContext context) {
+  void editSelectedCalibration(BuildContext context) {
     final selector = filterCals.firstWhere((e) => e.isSelected);
+    editCalibration(context, selector);
+  }
+
+  void editCalibration(BuildContext context, CalSelector selector) {
     _sheetController = showBottomSheet(
       context: context,
       builder: (BuildContext context) {
