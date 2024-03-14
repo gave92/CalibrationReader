@@ -7,6 +7,8 @@ import 'package:calibration_reader/views/Editable.dart';
 import 'package:calibration_reader/models/FileAcceptType.dart';
 import 'package:calibration_reader/utils/ReadDcmFile.dart';
 import 'package:calibration_reader/utils/WriteDcmFile.dart';
+import 'package:calibration_reader/views/NameValueCalView.dart';
+import 'package:calibration_reader/views/ValueEditCalView.dart';
 import 'package:collection/collection.dart';
 import 'package:darq/darq.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -209,45 +211,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
-  Widget showCalValue(dynamic calValue, int length, double maxWidth) {
-    final textValue =
-        calValue is num ? calValue.toStringAsPrecision(4) : calValue.toString();
-    double desWidth = math.min(math.max(70, maxWidth / length), 100);
-    return Container(
-        alignment: Alignment.center,
-        width: desWidth,
-        padding: const EdgeInsets.only(left: 6, right: 6),
-        child: Text(textValue));
-  }
-
-  Widget editCalValue(int row, int col, dynamic calValue, CalSelector selector,
-      int length, double maxWidth) {
-    final textValue =
-        calValue is num ? calValue.toStringAsPrecision(4) : calValue.toString();
-    double desWidth = math.min(math.max(70, maxWidth / length), 100);
-    return Editable(
-      text: textValue,
-      width: desWidth,
-      onSubmitted: (value) {
-        if (row >= 0) {
-          setState(() {
-            (selector.calibration.phys[row] as List)[col] = double.parse(value);
-            isDirty = true;
-          });
-        } else {
-          setState(() {
-            selector.calibration.phys[col] = double.parse(value);
-            isDirty = true;
-          });
-        }
-      },
-    );
-  }
-
   Widget nameValueItemBuilder(BuildContext context, int position) {
-    var appTheme = Theme.of(context);
     final selector = filterCals[position];
-    final cal = selector.calibration;
     final screenSize = MediaQuery.of(context).size;
     return ListTile(
         onTap: () {
@@ -275,63 +240,11 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: LinearBorder.bottom(
             size: (screenSize.width - 32) / screenSize.width,
             side: const BorderSide(color: Colors.black26, width: 1)),
-        title: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(cal.name,
-                    style: appTheme.textTheme.titleMedium!.copyWith(
-                        color: selector.isSelected
-                            ? appTheme.primaryColor
-                            : null)),
-                cal.phys.firstOrNull is List
-                    ? SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(children: [
-                          Column(
-                              children: cal.phys
-                                  .map((e) => e as List)
-                                  .map(
-                                    (e) => Row(
-                                      children: e
-                                          .map((c) => showCalValue(c, e.length,
-                                              constraints.maxWidth))
-                                          .toList(),
-                                    ),
-                                  )
-                                  .toList()),
-                          cal.sst_ref.length > 1
-                              ? RotatedBox(
-                                  quarterTurns: 1,
-                                  child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                          minWidth: 100,
-                                          maxWidth: math.max(
-                                              100, cal.phys.length * 17)),
-                                      child: Text(
-                                        cal.sst_ref[1],
-                                        textAlign: TextAlign.center,
-                                      )))
-                              : const SizedBox.shrink(),
-                        ]))
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                            children: cal.phys
-                                .map((c) => showCalValue(
-                                    c, cal.phys.length, constraints.maxWidth))
-                                .toList())),
-                cal.sst_ref.isNotEmpty
-                    ? Text(cal.sst_ref[0])
-                    : const SizedBox.shrink(),
-              ]);
-        }));
+        title: NameValueCalView(selector: selector));
   }
 
   void editCalibration(BuildContext context) {
     final selector = filterCals.firstWhere((e) => e.isSelected);
-    final cal = selector.calibration;
     _sheetController = showBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -342,43 +255,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: const Icon(Icons.close),
                 onPressed: () => _sheetController?.close(),
               )),
-          Flexible(child: ListTile(title: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            return SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: cal.phys.firstOrNull is List
-                    ? SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Column(
-                            children: cal.phys
-                                .map((e) => e as List)
-                                .mapIndexed(
-                                  (row, e) => Row(
-                                    children: e
-                                        .mapIndexed((col, c) => editCalValue(
-                                            row,
-                                            col,
-                                            c,
-                                            selector,
-                                            e.length,
-                                            constraints.maxWidth))
-                                        .toList(),
-                                  ),
-                                )
-                                .toList()))
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                            children: cal.phys
-                                .mapIndexed((col, c) => editCalValue(
-                                    -1,
-                                    col,
-                                    c,
-                                    selector,
-                                    cal.phys.length,
-                                    constraints.maxWidth))
-                                .toList())));
-          }))),
+          Flexible(
+              child: ListTile(
+                  title: ValueEditCalView(
+                      selector: selector,
+                      onValueEdit: (int row, int col, String value) =>
+                          editCalValue(row, col, value, selector)))),
           ListTile(
               title: Row(
             children: [
@@ -395,6 +277,20 @@ class _MyHomePageState extends State<MyHomePage> {
         ]);
       },
     );
+  }
+
+  void editCalValue(int row, int col, String value, CalSelector selector) {
+    if (row >= 0) {
+      setState(() {
+        (selector.calibration.phys[row] as List)[col] = double.parse(value);
+        isDirty = true;
+      });
+    } else {
+      setState(() {
+        selector.calibration.phys[col] = double.parse(value);
+        isDirty = true;
+      });
+    }
   }
 
   void removeCalibration() {
