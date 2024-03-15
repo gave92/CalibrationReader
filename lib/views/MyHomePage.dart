@@ -221,8 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: LayoutBuilder(builder: (BuildContext context,
                               BoxConstraints constraints) {
                             return TextButton.icon(
-                                onPressed: () =>
-                                    editSelectedCalibration(context),
+                                onPressed: () => editCalibration(context),
                                 icon: const Icon(Icons.edit_outlined),
                                 label: const Text('Edit'));
                           }),
@@ -251,7 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
               selector.isSelected = !selector.isSelected;
             });
           } else if (showNamesOnly) {
-            editCalibration(context, selector);
+            editCalibration(context, arg: selector);
           }
         },
         onLongPress: () {
@@ -276,12 +275,8 @@ class _MyHomePageState extends State<MyHomePage> {
             : NameValueCalView(selector: selector));
   }
 
-  void editSelectedCalibration(BuildContext context) {
-    final selector = filterCals.firstWhere((e) => e.isSelected);
-    editCalibration(context, selector);
-  }
-
-  void editCalibration(BuildContext context, CalSelector selector) {
+  void editCalibration(BuildContext context, {CalSelector? arg}) {
+    final selector = arg ?? filterCals.firstWhere((e) => e.isSelected);
     _sheetController = showBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -302,11 +297,11 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Row(
             children: [
               TextButton.icon(
-                  onPressed: copyCalibrationValue,
+                  onPressed: () => copyCalibrationValue(arg: selector),
                   icon: const Icon(Icons.copy_outlined),
                   label: const Text('Copy value')),
               TextButton.icon(
-                  onPressed: removeCalibration,
+                  onPressed: () => removeCalibration(arg: selector),
                   icon: const Icon(Icons.delete_outlined),
                   label: const Text('Remove'))
             ],
@@ -330,31 +325,29 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void removeCalibration() {
+  void removeCalibration({CalSelector? arg}) {
     _sheetController?.close();
+    final selector = arg ?? filterCals.firstWhere((e) => e.isSelected);
     setState(() {
-      allCals.removeWhere((e) => e.isSelected && filterCals.contains(e));
-      filterCals.removeWhere((e) => e.isSelected);
+      allCals.remove(selector);
+      filterCals.remove(selector);
       isDirty = true;
     });
   }
 
-  void copyCalibrationValue() async {
-    final calibs = filterCals.where((e) => e.isSelected);
-    if (calibs.length == 1) {
-      final valueText = calibs.first.calibration.phys.firstOrNull is List
-          ? calibs.first.calibration.phys
-              .map((e) => e as List)
-              .map((e) => e
-                  .map(
-                      (c) => c is num ? c.toStringAsPrecision(4) : c.toString())
-                  .join("\t"))
-              .join("\r\n")
-          : calibs.first.calibration.phys
-              .map((c) => c is num ? c.toStringAsPrecision(4) : c.toString())
-              .join("\t");
-      await Clipboard.setData(ClipboardData(text: valueText));
-    }
+  void copyCalibrationValue({CalSelector? arg}) async {
+    final selector = arg ?? filterCals.firstWhere((e) => e.isSelected);
+    final valueText = selector.calibration.phys.firstOrNull is List
+        ? selector.calibration.phys
+            .map((e) => e as List)
+            .map((e) => e
+                .map((c) => c is num ? c.toStringAsPrecision(4) : c.toString())
+                .join("\t"))
+            .join("\r\n")
+        : selector.calibration.phys
+            .map((c) => c is num ? c.toStringAsPrecision(4) : c.toString())
+            .join("\t");
+    await Clipboard.setData(ClipboardData(text: valueText));
   }
 
   void copyCalibrationName() async {
