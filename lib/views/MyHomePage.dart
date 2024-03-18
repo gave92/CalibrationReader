@@ -151,7 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Visibility(
                           visible: !filterCals.any((e) => e.isSelected),
                           child: TextButton.icon(
-                              onPressed: selectFile,
+                              onPressed: () => selectFile(
+                                  onLoadCallback: loadFileFromStream),
                               icon: const Icon(Icons.add_outlined),
                               label: const Text('Open')),
                         ),
@@ -193,6 +194,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                     onPressed: showFileInfo,
                                     leadingIcon: const Icon(Icons.info_outline),
                                     child: const Text('Info')),
+                                MenuItemButton(
+                                    onPressed: () => selectFile(
+                                        onLoadCallback: mergeFileFromStream),
+                                    leadingIcon:
+                                        const Icon(Icons.merge_outlined),
+                                    child: const Text('Compare/Merge')),
                               ],
                               builder: (BuildContext context,
                                   MenuController controller, Widget? child) {

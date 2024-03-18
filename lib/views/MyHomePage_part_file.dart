@@ -1,7 +1,10 @@
 part of 'MyHomePage.dart';
 
 extension _MyHomePageStateFile on _MyHomePageState {
-  Future<void> selectFile() async {
+  Future<void> selectFile(
+      {required Future<void> Function(
+              StreamIterator<String> stream, String name)
+          onLoadCallback}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['dcm', 'DCM'],
@@ -12,7 +15,7 @@ extension _MyHomePageStateFile on _MyHomePageState {
           .transform(latin1.decoder)
           .transform(const LineSplitter()));
       //final fc = latin1.decode(result.files.first.bytes!.toList());
-      await loadFileFromStream(stream, result.files.first.name);
+      await onLoadCallback(stream, result.files.first.name);
     }
   }
 
@@ -38,6 +41,20 @@ extension _MyHomePageStateFile on _MyHomePageState {
       filterCals = allCals;
       fileName = name;
       isDirty = false;
+    });
+  }
+
+  Future<void> mergeFileFromStream(
+      StreamIterator<String> stream, String name) async {
+    var (_, calibs, err, _) = await ReadDcmFile(stream);
+    if (err.isNotEmpty) return;
+    final ids = <String>{};
+    setState(() {
+      allCals = [...calibs.map((e) => CalSelector(e)), ...allCals] // Keep newer
+          .where((e) => ids.add(e.calibration.name))
+          .sortedBy((e) => e.calibration.name);
+      filterCals = allCals;
+      isDirty = true;
     });
   }
 
