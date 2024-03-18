@@ -7,11 +7,13 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/services.dart';
 import 'package:web/web.dart' as web;
 
+part 'filesystem_web_part_js.dart';
+
 void loadFileFromLaunchQueue(List<web.FileSystemFileHandle> handles,
     {required Future<void> Function(StreamIterator<String> stream, String name)
         onLoadCallback}) async {
   if (handles.isNotEmpty) {
-    final file = await handles.first.getFile().toDart as web.File;
+    final file = await handles.first.getFile().toDart;
     final contents = await file.text().toDart as String;
     final stream = StreamIterator(
         Stream.fromIterable(const LineSplitter().convert(contents)));
@@ -22,7 +24,7 @@ void loadFileFromLaunchQueue(List<web.FileSystemFileHandle> handles,
 void setLaunchQueueConsumer(
     {required Future<void> Function(StreamIterator<String> stream, String name)
         onLoadCallback}) {
-  web.window.launchQueue.setConsumer((web.LaunchParams launchParams) {
+  web.window.launchQueue.setConsumer((LaunchParams launchParams) {
     final handles = launchParams.files.toDart.cast<web.FileSystemFileHandle>();
     loadFileFromLaunchQueue(handles, onLoadCallback: onLoadCallback);
   }.toJS);
@@ -36,10 +38,10 @@ Future<bool> saveFileToDevice(
     String fileName, Uint8List bytes, List<FileAcceptType> extensions) async {
   if (supportsSaveFilePicker()) {
     try {
-      var options = web.SaveFilePickerOptions(suggestedName: fileName);
+      var options = SaveFilePickerOptions(suggestedName: fileName);
       options.excludeAcceptAllOption = true;
       options.types = extensions
-          .map((e) => web.FilePickerAcceptType(
+          .map((e) => FilePickerAcceptType(
               description: e.description,
               accept: (() {
                 final accept = JSObjectType();
@@ -53,8 +55,7 @@ Future<bool> saveFileToDevice(
       options.startIn = "documents".toJS;
       final handle = await web.window.showSaveFilePicker(options).toDart
           as web.FileSystemFileHandle;
-      final stream = await handle.createWritable().toDart
-          as web.FileSystemWritableFileStream;
+      final stream = await handle.createWritable().toDart;
       await stream.write(bytes.toJS).toDart;
       await stream.close().toDart;
       return true;
@@ -70,11 +71,4 @@ Future<bool> saveFileToDevice(
         mimeType: MimeType.text);
     return true;
   }
-}
-
-@JS()
-@staticInterop
-@anonymous
-class JSObjectType implements JSObject {
-  external factory JSObjectType();
 }
