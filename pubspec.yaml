@@ -49,6 +49,7 @@ dependencies:
   ffi: ^2.1.2
   inject_js: ^2.0.0
   wasm_ffi: ^0.9.4
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

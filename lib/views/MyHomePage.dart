@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 import 'package:calibration_reader/platform/filesystem_none.dart'
     if (dart.library.js_interop) 'package:calibration_reader/platform/filesystem_web.dart';
@@ -46,6 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final _scrollController = ScrollController();
   FocusNode? _focusNode;
 
+  SharedPreferences? _prefs;
+
   void showFileInfo() {
     showModalBottomSheet(
       context: context,
@@ -77,6 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     ServicesBinding.instance.keyboard.addHandler(onKey);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load preferences
+      _prefs = await SharedPreferences.getInstance();
+      showNamesOnly = _prefs!.getBool('showNamesOnly') ?? false;
+      // Open launched file
       if (widget.args.isNotEmpty) {
         final file = File(widget.args.first);
         final stream = StreamIterator(file
@@ -169,10 +176,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           visible: fileName.isNotEmpty &&
                               !filterCals.any((e) => e.isSelected),
                           child: TextButton.icon(
-                              onPressed: () {
+                              onPressed: () async {
                                 setState(() {
                                   showNamesOnly = !showNamesOnly;
                                 });
+                                await _prefs?.setBool(
+                                    'showNamesOnly', showNamesOnly);
                               },
                               icon: const Icon(Icons.view_agenda_outlined),
                               label: const Text('Switch view')),
@@ -236,6 +245,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         Visibility(
                           visible: filterCals.any((e) => e.isSelected),
                           child: TextButton.icon(
+                              onPressed: removeCalibration,
+                              icon: const Icon(Icons.delete_outlined),
+                              label: const Text('Remove')),
+                        ),
+                        Visibility(
+                          visible: filterCals.any((e) => e.isSelected),
+                          child: TextButton.icon(
                               onPressed: saveFileSelected,
                               icon: const Icon(Icons.save_as_outlined),
                               label: const Text('Save selected')),
@@ -274,9 +290,21 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
         selected: selector.isSelected,
-        shape: LinearBorder.bottom(
-            size: (screenSize.width - 32) / screenSize.width,
-            side: const BorderSide(color: Colors.black26, width: 1)),
+        leading: showNamesOnly
+            ? filterCals.any((e) => e.isSelected)
+                ? selector.isSelected
+                    ? const Icon(Icons.check_box_outlined)
+                    : const Icon(Icons.check_box_outline_blank_outlined)
+                : selector.calibration.size.any((s) => s == 1)
+                    ? const Icon(Icons.data_array_outlined)
+                    : const Icon(Icons.grid_3x3_outlined)
+            : null,
+        visualDensity: const VisualDensity(vertical: -4),
+        shape: showNamesOnly
+            ? null
+            : LinearBorder.bottom(
+                size: (screenSize.width - 32) / screenSize.width,
+                side: const BorderSide(color: Colors.black26, width: 1)),
         title: showNamesOnly
             ? Text(selector.calibration.name)
             : NameValueCalView(selector: selector));
@@ -308,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: const Icon(Icons.copy_outlined),
                   label: const Text('Copy value')),
               TextButton.icon(
-                  onPressed: () => removeCalibration(arg: selector),
+                  onPressed: () => removeCalibration(arg: [selector]),
                   icon: const Icon(Icons.delete_outlined),
                   label: const Text('Remove'))
             ],
@@ -332,12 +360,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void removeCalibration({CalSelector? arg}) {
+  void removeCalibration({List<CalSelector>? arg}) {
     _sheetController?.close();
-    final selector = arg ?? filterCals.firstWhere((e) => e.isSelected);
+    final list = arg ?? filterCals.where((e) => e.isSelected).toList();
     setState(() {
-      allCals.remove(selector);
-      filterCals.remove(selector);
+      list.forEach((s) => allCals.remove(s));
+      list.forEach((s) => filterCals.remove(s));
       isDirty = true;
     });
   }

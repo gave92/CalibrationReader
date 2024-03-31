@@ -9,7 +9,7 @@ class NameValueCalView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appTheme = Theme.of(context);
+    final appTheme = Theme.of(context);
     final cal = selector.calibration;
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
