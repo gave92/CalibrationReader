@@ -47,7 +47,7 @@
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
-        onEntrypointLoaded: function(engineInitializer) {
+        onEntrypointLoaded: async function(engineInitializer) {
           let appRunner = await engineInitializer.initializeEngine({
             canvasKitBaseUrl: "./canvaskit/"
           });
