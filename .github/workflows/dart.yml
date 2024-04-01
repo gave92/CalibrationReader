@@ -31,7 +31,7 @@ jobs:
         run: flutter test
 
       - name: Build web
-        run: flutter build web --web-renderer canvaskit
+        run: flutter build web --web-renderer canvaskit --base-href "/flutter/calibration_reader/"
 
       - name: Upload Web Build Files
         uses: actions/upload-artifact@v4

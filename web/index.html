@@ -48,9 +48,10 @@
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
+          let appRunner = await engineInitializer.initializeEngine({
+            canvasKitBaseUrl: "./canvaskit/"
           });
+          appRunner.runApp();
         }
       });
     });
