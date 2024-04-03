@@ -37,14 +37,17 @@ jobs:
       - name: Set base href
         run: sed -i -e 's/"\/"/".\/"/' ./build/web/index.html
 
+      - name: Copy service worker
+        run: cp "build/web/assets/assets/flutter_service_worker.js" "build/web/"
+
       - name: Copy assets
         run: cp "build/web/assets/assets/tinymatwriter"* "build/web/assets/"
 
-      #- name: Upload artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: calibration_reader_web
-      #    path: './build/web'
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibration_reader
+          path: './build/web'
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
