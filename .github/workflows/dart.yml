@@ -35,7 +35,7 @@ jobs:
         run: flutter build web --web-renderer canvaskit --base-href "/CalibrationReader/"
 
       - name: Copy assets
-        run: cp "build/web/assets/assets/tinymatwriter.*" "build/web/assets/"
+        run: cp "build/web/assets/assets/tinymatwriter"* "build/web/assets/"
 
       #- name: Upload artifact
       #  uses: actions/upload-artifact@v4
