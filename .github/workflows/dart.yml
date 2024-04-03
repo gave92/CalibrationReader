@@ -38,7 +38,7 @@ jobs:
         run: sed -i -e 's/"\/"/".\/"/' ./build/web/index.html
 
       - name: Copy service worker
-        run: cp "build/web/assets/assets/flutter_service_worker.js" "build/web/"
+        run: cp "web/flutter_service_worker.js" "build/web/"
 
       - name: Copy assets
         run: cp "build/web/assets/assets/tinymatwriter"* "build/web/assets/"
