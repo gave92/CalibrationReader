@@ -34,17 +34,8 @@ jobs:
       - name: Build web
         run: flutter build web --web-renderer canvaskit --base-href "/CalibrationReader/"
 
-      - name: Copy file 1
-        uses: canastro/copy-file-action@master
-        with:
-          source: "build/web/assets/assets/tinymatwriter.js"
-          target: "build/web/assets/tinymatwriter.js"
-
-      - name: Copy file 2
-        uses: canastro/copy-file-action@master
-        with:
-          source: "build/web/assets/assets/tinymatwriter.wasm"
-          target: "build/web/assets/tinymatwriter.wasm"
+      - name: Copy assets
+        run: cp "build/web/assets/assets/tinymatwriter.*" "build/web/assets/"
 
       #- name: Upload artifact
       #  uses: actions/upload-artifact@v4
