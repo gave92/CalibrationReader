@@ -35,7 +35,7 @@ jobs:
         run: flutter build web --web-renderer canvaskit
 
       - name: Set base href
-        run: sed -i -e 's/"\/"/".\/"' /build/web/index.hmtl
+        run: sed -i -e 's/"\/"/".\/"/' ./build/web/index.html
 
       - name: Copy assets
         run: cp "build/web/assets/assets/tinymatwriter"* "build/web/assets/"
