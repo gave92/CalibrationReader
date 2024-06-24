@@ -36,7 +36,8 @@
         {
             "action": ".",
             "accept": {
-                "application/vnd.dcm": [".dcm"]
+                "application/vnd.dcm": [".dcm"],
+                "application/vnd.cvx": [".csv"]
             }
         }
     ]

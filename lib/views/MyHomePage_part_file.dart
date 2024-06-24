@@ -7,7 +7,7 @@ extension _MyHomePageStateFile on _MyHomePageState {
           onLoadCallback}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['dcm', 'DCM'],
+        allowedExtensions: ['dcm', 'DCM', 'csv', 'CSV'],
         withData: false,
         withReadStream: true);
     if (result != null) {
@@ -30,7 +30,9 @@ extension _MyHomePageStateFile on _MyHomePageState {
 
   Future<void> loadFileFromStream(
       StreamIterator<String> stream, String name) async {
-    var (_, calibs, err, line) = await ReadDcmFile(stream);
+    var (_, calibs, err, line) = path.extension(name).toLowerCase() == '.dcm'
+        ? await ReadDcmFile(stream)
+        : await ReadCvxFile(stream);
     setState(() {
       showErr = err.isNotEmpty;
       errMessage = "$err: $line";
